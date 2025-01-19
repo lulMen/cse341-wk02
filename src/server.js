@@ -1,16 +1,24 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require('cors');
-const data = require('../data/professional.json');
+const mongodb = require('../db/connect');
+const professionalRoutes = require('./routes/professional');
+const contactsRoutes = require('./routes/contacts');
 
-const app = express();
 const port = process.env.PORT || 8080;
+const app = express();
 
-app.use(cors());
+app
+    .use(bodyParser.json())
+    .use(cors())
+    .use('/professional', professionalRoutes)
+    .use('/contacts', contactsRoutes);
 
-app.get('/professional', (req, res) => {
-    res.json(data);
-});
-
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+mongodb.initDb((err, mongodb) => {
+    if (err) {
+        console.log(err);
+    } else {
+        app.listen(port);
+        console.log(`Server running at http://localhost:${port}`);
+    }
 });
